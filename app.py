@@ -3,19 +3,21 @@ from flask import Flask, request, render_template_string, jsonify
 
 app = Flask(__name__)
 
-# UBUBIKO BW'AMATEGEKO Y'U RWANDA - AMATEGEKO 5 NEZA NTA IKOSA RYA KEY
+# UBUBIKO BW'AMATEGEKO Y'U RWANDA KANDI YAGABANYIJWE NEZA CYANE
 LAW_DATABASE = {
     "1": {
+        "id": "1",
         "title_rw": "Itegeko Nshinga rya Repubulika y'u Rwanda",
         "title_en": "Constitution of the Republic of Rwanda",
         "icon": "⚖️",
-        "content_rw": "Ingingo ya 1: Umuryango nyarwanda uteye imbere ku bumwe n'ubwiyunge. Ingingo ya 10: Demokarasi n'uburenganzira bwa muntu ntibwogerwa. Ingingo ya 13: Agaciro k'umuntu kanyuranyije n'iyica rubzo.",
+        "content_rw": "Ingingo ya 1: Umuryango nyarwanda uteye imbere ku bumwe n'ubwiyunge. Ingingo ya 10: Demokarasi n'uburenganzira bwa muntu ntibwogerwa. Ingingo ya 13: Agaciro k'umuntu kanyuranyije n'iyica rubazo.",
         "penalty_rw": "IBIHANO: Ikintu cyose, itegeko cyangwa gikorwa kinyuranyije n'Itegeko Nshinga nta gaciro kiba gifite imbere y'amategeko (Null and void).",
         "content_en": "Article 1: The Rwandan State is a Republic. Article 10: Core values of rule of law and human rights. Article 13: Inviolability of human dignity.",
         "penalty_en": "SANCTION: Any law, act, or decree contrary to the Constitution is null and void under the law.",
         "tags": "itegeko nshinga, constitution, uburenganzira, nshinga, muntu, agaciro"
     },
     "2": {
+        "id": "2",
         "title_rw": "Itegeko ry'Ibyaha n'Ibano (Penal Code)",
         "title_en": "Penal Code of Rwanda",
         "icon": "🚨",
@@ -26,6 +28,7 @@ LAW_DATABASE = {
         "tags": "ibyaha, penal, ubujura, theft, gukubita, ruswa, igifungo, amande, gukomeretsa"
     },
     "3": {
+        "id": "3",
         "title_rw": "Itegeko ry'Umuryango n'Abantu (Family Law)",
         "title_en": "Law Governing Persons and Family",
         "icon": "🏠",
@@ -36,6 +39,7 @@ LAW_DATABASE = {
         "tags": "umuryango, family, gushyingirwa, marriage, izungura, ubutane, divorce, abana"
     },
     "4": {
+        "id": "4",
         "title_rw": "Itegeko ry'Umurimo mu Rwanda (Labor Law)",
         "title_en": "Law Governing Labor in Rwanda",
         "icon": "💼",
@@ -46,6 +50,7 @@ LAW_DATABASE = {
         "tags": "akazi, umurimo, contract, fire, kwirukanwa, umushahara, notice, amasezerano"
     },
     "5": {
+        "id": "5",
         "title_rw": "Amategeko y'Umuhanda n'Ibyapa (Traffic Regulations)",
         "title_en": "Traffic and Road Safety Regulations",
         "icon": "🚗",
@@ -57,7 +62,6 @@ LAW_DATABASE = {
     }
 }
 
-# Stores Zizewe neza
 LITIGATION_CASES = []
 COMMENTS_STORE = {"1": [], "2": [], "3": [], "4": [], "5": []}
 
@@ -69,7 +73,7 @@ def file_case():
     if phone and details:
         case = {"phone": phone, "category": category, "details": details, "status": "Pending Analysis"}
         LITIGATION_CASES.append(case)
-        return jsonify({"status": "Success", "cases": LITIGATION_CASES})
+        return jsonify({"status": "Success", "cases_count": len(LITIGATION_CASES)})
     return jsonify({"status": "Error"}), 400
 
 @app.route("/add-comment", methods=["POST"])
@@ -84,17 +88,55 @@ def add_comment():
 
 @app.route("/", methods=["GET"])
 def dashboard():
-    laws_list = []
-    for k, v in LAW_DATABASE.items():
-        laws_list.append({
-            "id": k, 
-            "title_rw": v["title_rw"], 
-            "title_en": v["title_en"], 
-            "icon": v["icon"], 
-            "content_rw": v["content_rw"], 
-            "content_en": v["content_en"], 
-            "penalty_rw": v["penalty_rw"], 
-            "penalty_en": v["penalty_en"], 
-            "tags": v["tags"]
-        })
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="rw">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rwanda Law - GAD MASOZERA</title>
+        <script src="https://jsdelivr.net"></script>
+    </head>
+    <body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
+        <header class="bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-xl sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight">🇷🇼 Rwanda Law Access Hub</h1>
+                    <p class="text-emerald-100 text-sm mt-1 font-medium">Developed by <span class="underline font-bold decoration-teal-300 decoration-2">GAD MASOZERA</span></p>
+                </div>
+                <div class="bg-emerald-900/60 border border-emerald-500/30 px-5 py-2 rounded-full text-xs font-bold uppercase text-emerald-200">Innovative AI Portal</div>
+            </div>
+        </header>
 
+        <main class="max-w-7xl mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-emerald-600">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">USSD Code Gateway</p>
+                    <p class="text-2xl font-black text-emerald-600 mt-1 font-mono">*384*61254#</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-orange-500">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">AI Legal Counselor</p>
+                    <p class="text-xl font-bold text-orange-600 mt-1">Online / Smart</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-blue-500">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Cases Filed</p>
+                    <p id="casesCount" class="text-2xl font-black text-slate-700 mt-1">0 Active</p>
+                </div>
+            </div>
+
+            <!-- Search Area Header -->
+            <div class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Amategeko y'u Rwanda n'Ibihano birimo</h2>
+                <div class="w-full sm:w-72 relative">
+                    <input type="text" id="searchInput" onkeyup="filterSystem()" placeholder="Shakisha amategeko hano..." class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-inner">
+                </div>
+            </div>
+
+            <!-- Vertical Tabs Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Tabs Sidebar Menu -->
+                <div class="space-y-2">
+                    {% for key, law in laws.items() %}
+                    <button onclick="showLaw('{{ key }}')" id="btn-{{ key }}" class="law-tab-btn w-full text-left px-5 py-4 rounded-xl font-bold flex items-center gap-3 border border-transparent transition shadow-xs {% if key == '1' %}bg-emerald-600 text-white shadow-md{% else %}bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-200{% endif %}">
+                        <span class="text-2xl">{{ law.icon }}</span>
+                        <div class="truncate">
