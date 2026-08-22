@@ -143,4 +143,4 @@ def dashboard():
             <div class="grid">
                 {% for law in laws %}
                 <div class="card">
-                    <div class="card-title">{{ law.title_rw }}</div>
+                    <div class="card-title">{{ law.title_rw }}</div></body></html>
