@@ -2,7 +2,6 @@ from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
-
 # Mock database tracking live requests from citizens
 HELP_REQUESTS = [
     {"phone": "+250788111222", "issue": "Labor Law Dispute", "status": "Pending Allocation"},
@@ -93,34 +92,38 @@ def dashboard():
 def ussd_handler():
     text_input = request.form.get("text", "")
     phone_number = request.form.get("phoneNumber", "")
+    
     steps = text_input.split('*') if text_input else []
     
     if text_input == "":
         return "CON Ikaze kuri Rwanda Law App (By GAD MASOZERA)!\nHitamo ururimi / Choose language:\n1. Kinyarwanda\n2. English\n3. Quick Search"
 
     elif len(steps) == 1:
-        lang = steps
-        if lang == "1": return "CON Hitamo Icyiciro:\n1. Umurimo (Labor)\n2. Umuhanda (Traffic)"
-        elif lang == "2": return "CON Choose Category:\n1. Labor Law\n2. Traffic Rules"
-        elif lang == "3": return "CON Andika ijambo ushaka (e.g., akazi, permis):"
+        lang = steps[0]
+        if lang == "1": 
+            return "CON Hitamo Icyiciro:\n1. Umurimo (Labor)\n2. Umuhanda (Traffic)"
+        elif lang == "2": 
+            return "CON Choose Category:\n1. Labor Law\n2. Traffic Rules"
+        elif lang == "3": 
+            return "CON Andika ijambo ushaka (e.g., akazi, permis):"
         return "END Invalid."
 
     # Process search fallback keyword
-    elif len(steps) == 2 and steps == "3":
-        keyword = steps.lower().strip()
+    elif len(steps) == 2 and steps[0] == "3":
+        keyword = steps[1].lower().strip()
         for key, data in LAW_DATABASE.items():
             if keyword in data["tags"]:
                 return f"CON {data['rw']}\n\n3. Siga Ubufasha (Legal Aid)"
         return "END Ntacyo twabonye. / No results found."
 
     elif len(steps) == 2:
-        lang, category = steps, steps
+        lang, category = steps[0], steps[1]
         db_key = "labor" if category == "1" else "traffic"
         selected_law = LAW_DATABASE[db_key]["rw"] if lang == "1" else LAW_DATABASE[db_key]["en"]
         aid_opt = "\n3. Gusa Ubufasha" if lang == "1" else "\n3. Request Legal Aid"
         return f"CON {selected_law}{aid_opt}"
 
-    elif len(steps) == 3 and steps == "3":
+    elif len(steps) == 3 and steps[2] == "3":
         HELP_REQUESTS.append({"phone": phone_number, "issue": "Urgent Legal Support Needed", "status": "Pending Allocation"})
         return "END Murakoze. Umunyamategeko agiye kuguhamagara mukanya. / A lawyer will call you."
 
