@@ -3,7 +3,7 @@ from flask import Flask, request, render_template_string, jsonify
 
 app = Flask(__name__)
 
-# UBUBIKO BW'AMATEGEKO Y'U RWANDA N'IBIHANO (PYTHON DICTIONARY)
+# UBUBIKO BW'AMATEGEKO Y'U RWANDA - 5 CODES YUZUYE NEZA
 LAW_DATABASE = {
     "1": {
         "title_rw": "Itegeko Nshinga rya Repubulika y'u Rwanda",
@@ -57,11 +57,10 @@ LAW_DATABASE = {
     }
 }
 
-# Dynamic In-Memory Stores
+# GUKOSORA IMIBARE YA COMMENTS - AMAPEJI ANgana neza ubu
 LITIGATION_CASES = []
 COMMENTS_STORE = {"1": [], "2": [], "3": [], "4": [], "5": []}
 
-# 1. API: Submit a Legal Case / File Case
 @app.route("/file-case", methods=["POST"])
 def file_case():
     phone = request.form.get("phone")
@@ -73,7 +72,6 @@ def file_case():
         return jsonify({"status": "Success", "cases": LITIGATION_CASES})
     return jsonify({"status": "Error"}), 400
 
-# 2. API: Add Comment
 @app.route("/add-comment", methods=["POST"])
 def add_comment():
     law_id = request.form.get("law_id")
@@ -84,7 +82,6 @@ def add_comment():
         return jsonify({"status": "Success", "comments": COMMENTS_STORE[law_id]})
     return jsonify({"status": "Error"}), 400
 
-# --- WEB UI PORTAL ---
 @app.route("/", methods=["GET"])
 def dashboard():
     laws_list = []
