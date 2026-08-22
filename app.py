@@ -3,7 +3,7 @@ from flask import Flask, request, render_template_string, jsonify
 
 app = Flask(__name__)
 
-# UBUBIKO BW'AMATEGEKO Y'U RWANDA - 5 CODES YUZUYE NEZA
+# UBUBIKO BW'AMATEGEKO Y'U RWANDA - AMATEGEKO 5 NEZA NTA IKOSA RYA KEY
 LAW_DATABASE = {
     "1": {
         "title_rw": "Itegeko Nshinga rya Repubulika y'u Rwanda",
@@ -57,7 +57,7 @@ LAW_DATABASE = {
     }
 }
 
-# GUKOSORA IMIBARE YA COMMENTS - AMAPEJI ANgana neza ubu
+# Stores Zizewe neza
 LITIGATION_CASES = []
 COMMENTS_STORE = {"1": [], "2": [], "3": [], "4": [], "5": []}
 
@@ -86,5 +86,15 @@ def add_comment():
 def dashboard():
     laws_list = []
     for k, v in LAW_DATABASE.items():
-        laws_list.append({"id": k, "title_rw": v["title_rw"], "title_en": v["title_en"], "icon": v["icon"], "content_rw": v["content_rw"], "content_en": v["content_en"], "penalty_rw": v["penalty_rw"], "penalty_en": v["penalty_en"], "tags": v["tags"]})
+        laws_list.append({
+            "id": k, 
+            "title_rw": v["title_rw"], 
+            "title_en": v["title_en"], 
+            "icon": v["icon"], 
+            "content_rw": v["content_rw"], 
+            "content_en": v["content_en"], 
+            "penalty_rw": v["penalty_rw"], 
+            "penalty_en": v["penalty_en"], 
+            "tags": v["tags"]
+        })
 
