@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
@@ -56,17 +56,58 @@ LAW_DATABASE = {
     }
 }
 
-# --- WEBSITE DASHBOARD INJSON --
+# --- WEBSITE DASHBOARD NYAYO IFITE AMABARA —--
 @app.route("/", methods=["GET"])
 def dashboard():
-    laws_list = [{"id": k, "title": v["title_rw"], "content_rw": v["content_rw"], "content_en": v["content_en"]} for k, v in LAW_DATABASE.items()]
-    return jsonify({
-        "status": "Live",
-        "developer": "GAD MASOZERA",
-        "message": "Rwanda Law App Server Running 100% Perfect",
-        "laws_count": len(laws_list),
-        "laws": laws_list
-    })
+    laws_html = ""
+    for k, v in LAW_DATABASE.items():
+        laws_html += f"""
+        <div style="background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border-left: 6px solid #059669;">
+            <h3 style="color: #059669; margin-top: 0; font-size: 1.3em; font-family: sans-serif;">{k}. {v['title_rw']} / {v['title_en']}</h3>
+            <p style="color: #334155; font-size: 1em; line-height: 1.6; margin: 10px 0; font-family: sans-serif;"><strong>Kinyarwanda:</strong> {v['content_rw']}</p>
+            <p style="color: #2563eb; font-size: 0.95em; line-height: 1.5; font-style: italic; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-bottom: 0; font-family: sans-serif;"><strong>English:</strong> {v['content_en']}</p>
+        </div>
+        """
+        
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="rw">
+    <head>
+        <meta charset="UTF-8">
+        <title>Rwanda Law - GAD MASOZERA Portal</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0;">
+        <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 35px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h1 style="margin: 0; font-size: 2.6em; letter-spacing: 1px;">🇷🇼 Rwanda Law Access Hub</h1>
+            <p style="margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.95;">Developed by <strong style="text-decoration: underline;">GAD MASOZERA</strong> | Official Production Server</p>
+        </div>
+        
+        <div style="width: 85%; margin: 40px auto; max-width: 1000px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;">
+                <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #059669;">
+                    <div style="color: #64748b; text-transform: uppercase; font-size: 0.85em; font-weight: bold;">USSD Platform</div>
+                    <div style="font-size: 1.8em; font-weight: bold; color: #1e293b; margin-top: 5px;">*384*61254#</div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #f97316;">
+                    <div style="color: #64748b; text-transform: uppercase; font-size: 0.85em; font-weight: bold;">System Status</div>
+                    <div style="font-size: 1.8em; font-weight: bold; color: #059669; margin-top: 5px;">Active / Live</div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #3b82f6;">
+                    <div style="color: #64748b; text-transform: uppercase; font-size: 0.85em; font-weight: bold;">Law Categories</div>
+                    <div style="font-size: 1.8em; font-weight: bold; color: #1e293b; margin-top: 5px;">7 Full Codes</div>
+                </div>
+            </div>
+
+            <h2 style="color: #0f172a; font-size: 1.8em; border-bottom: 3px solid #10b981; padding-bottom: 8px; width: fit-content; margin-bottom: 30px;">Amategeko yose n'Ibihano birimo (Live Database)</h2>
+            
+            <div>
+                {laws_html}
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(html_template)
 
 # --- USSD CORE SERVICE ---
 @app.route("/ussd", methods=["POST"])
@@ -78,7 +119,7 @@ def ussd_handler():
         return "CON Ikaze kuri Rwanda Law App (By GAD MASOZERA)!\nHitamo ururimi / Choose language:\n1. Kinyarwanda\n2. English\n3. Quick Search"
 
     elif len(steps) == 1:
-        lang = steps[0]
+        lang = steps
         if lang in ["1", "2"]:
             menu = "CON Hitamo Icyiciro:\n" if lang == "1" else "CON Choose Category:\n"
             for k, v in LAW_DATABASE.items():
@@ -89,15 +130,15 @@ def ussd_handler():
             return "CON Andika ijambo ushaka (e.g., akazi, ibyaha, amande):"
         return "END Invalid input."
 
-    elif len(steps) == 2 and steps[0] == "3":
-        keyword = steps[1].lower().strip()
+    elif len(steps) == 2 and steps == "3":
+        keyword = steps.lower().strip()
         for k, v in LAW_DATABASE.items():
             if keyword in v["tags"]:
                 return f"CON {v['content_rw']}\n\n9. Siga Ubufasha (Legal Aid)"
         return "END Ntacyo twabonye. / No results found."
 
     elif len(steps) == 2:
-        lang, category = steps[0], steps[1]
+        lang, category = steps, steps
         if category in LAW_DATABASE:
             v = LAW_DATABASE[category]
             content = v["content_rw"] if lang == "1" else v["content_en"]
@@ -105,7 +146,7 @@ def ussd_handler():
             return f"CON {content}{aid_opt}"
         return "END Invalid Category."
 
-    elif len(steps) == 3 and steps[2] == "9":
+    elif len(steps) == 3 and steps == "9":
         return "END Murakoze. Umunyamategeko agiye kuguhamagara mukanya. / A lawyer will call you."
 
     return "END System error."
