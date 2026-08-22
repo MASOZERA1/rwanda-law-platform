@@ -1,9 +1,8 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template_string, jsonify
 
 app = Flask(__name__)
 
-# UBUBIKO BW'AMATEGEKO Y'U RWANDA N'IBIHANO (PYTHON DICTIONARY)
 LAW_DATABASE = {
     "1": {
         "title_rw": "Itegeko Nshinga rya Repubulika y'u Rwanda",
@@ -69,66 +68,21 @@ def file_case():
         return jsonify({"status": "Success", "cases_count": len(LITIGATION_CASES)})
     return jsonify({"status": "Error"}), 400
 
-# --- STATIC PREMIUM WEB DASHBOARD WITHOUT STRING ERRORS ---
 @app.route("/", methods=["GET"])
 def dashboard():
-    return """<!DOCTYPE html>
-<html lang="rw">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rwanda Law - GAD MASOZERA</title>
-    <script src="https://jsdelivr.net"></script>
-</head>
-<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
-    <header class="bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-xl sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-black tracking-tight">🇷🇼 Rwanda Law Access Hub</h1>
-                <p class="text-emerald-100 text-sm mt-1 font-medium">Developed by <span class="underline font-bold">GAD MASOZERA</span></p>
-            </div>
-            <div class="bg-emerald-900/60 border border-emerald-500/30 px-5 py-2 rounded-full text-xs font-bold uppercase text-emerald-200 shadow-inner">Innovative Server</div>
-        </div>
-    </header>
+    # Gufunga HTML mu buryo bw'imirongo migufi bwizewe 100% nta `"""` na mwe irimo
+    html_data = "<!DOCTYPE html><html lang='rw'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Rwanda Law</title><script src='https://jsdelivr.net'></script></head><body class='bg-slate-100 font-sans text-slate-800 antialiased min-h-screen'><header class='bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-xl sticky top-0 z-50'><div class='max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4'><div><h1 class='text-3xl font-black tracking-tight'>🇷🇼 Rwanda Law Access Hub</h1><p class='text-emerald-100 text-sm mt-1 font-medium'>Developed by <span class='underline font-bold decoration-teal-300 decoration-2'>GAD MASOZERA</span></p></div><div class='bg-emerald-900/60 border border-emerald-500/30 px-5 py-2 rounded-full text-xs font-bold uppercase text-emerald-200 shadow-inner'>Innovative Server</div></div></header><main class='max-w-7xl mx-auto px-6 py-10'><div class='grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12'><div class='bg-white p-6 rounded-2xl shadow-sm border-t-4 border-emerald-600'><p class='text-xs font-bold uppercase tracking-wider text-slate-400'>USSD Code Gateway</p><p class='text-2xl font-black text-emerald-600 mt-1 font-mono'>*384*61254#</p></div><div class='bg-white p-6 rounded-2xl shadow-sm border-t-4 border-orange-500'><p class='text-xs font-bold uppercase tracking-wider text-slate-400'>AI Legal Counselor</p><p class='text-xl font-bold text-orange-600 mt-1'>Online / Smart</p></div><div class='bg-white p-6 rounded-2xl shadow-sm border-t-4 border-blue-500'><p class='text-xs font-bold uppercase tracking-wider text-slate-400'>Live Cases Filed</p><p id='casesCount' class='text-2xl font-black text-slate-700 mt-1'>Active Cases</p></div></div>"
+    
+    html_data += "<div class='mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center'><h2 class='text-2xl font-extrabold text-slate-800 tracking-tight'>Amategeko y'u Rwanda n'Ibihano birimo</h2><div class='w-full sm:w-72 relative'><input type='text' id='searchInput' onkeyup='filterSystem()' placeholder='Shakisha amategeko hano...' class='w-full bg-white border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-inner'></div></div><div class='grid grid-cols-1 md:grid-cols-3 gap-8'><div class='space-y-2' id='tabsMenu'>"
+    
+    for k, v in LAW_DATABASE.items():
+        bg_cls = "bg-emerald-600 text-white shadow-md" if k == "1" else "bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-200"
+        html_data += "<button onclick='showLaw(\""+k+"\")' id='btn-" + k + "' class='law-tab-btn w-full text-left px-5 py-4 rounded-xl font-bold flex items-center gap-3 border border-transparent transition shadow-xs " + bg_cls + "'><span class='text-2xl'>" + v["icon"] + "</span><div class='truncate'><p class='text-sm leading-tight'>" + v["title_rw"] + "</p><p class='text-xs opacity-75 font-mono mt-0.5 font-medium'>" + v["title_en"] + "</p></div></button>"
+        
+    html_data += "<div class='bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl text-white shadow-md mt-6'><h3 class='text-sm font-black flex items-center gap-2 text-teal-400'>🤖 AI Legal Consultation</h3><p class='text-xs text-slate-300 mt-1'>Regeka ikibazo wagize hano kugira ngo AI igusesengurire.</p><form id='litigationForm' class='mt-4 space-y-3'><input type='text' id='casePhone' placeholder='Nimero ya Terefone' class='w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-400' required><textarea id='caseDetails' placeholder='Vuga ikibazo cyangwa akarengane wagize hano...' class='w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-xs text-white h-20 focus:outline-none' required></textarea><button type='button' onclick='submitCase()' class='w-full bg-teal-500 hover:bg-teal-600 text-slate-950 font-black py-2.5 text-xs rounded-lg uppercase tracking-wider transition'>Regeka / File Case</button></form></div></div>"
+    
+    html_data += "<div class='md:col-span-2 space-y-6' id='panelsContainer'>"
+    
+    for k, v in LAW_DATABASE.items():
+        hid_cls = "hidden" if k != "1" else ""
 
-    <main class="max-w-7xl mx-auto px-6 py-10">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-emerald-600">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">USSD Code Gateway</p>
-                <p class="text-2xl font-black text-emerald-600 mt-1 font-mono">*384*61254#</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-orange-500">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">AI Legal Counselor</p>
-                <p class="text-xl font-bold text-orange-600 mt-1">Online / Smart</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-blue-500">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Cases Filed</p>
-                <p id="casesCount" class="text-2xl font-black text-slate-700 mt-1">0 Active</p>
-            </div>
-        </div>
-
-        <div class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Amategeko y'u Rwanda n'Ibihano birimo</h2>
-            <div class="w-full sm:w-72 relative">
-                <input type="text" id="searchInput" onkeyup="filterSystem()" placeholder="Shakisha amategeko hano..." class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-inner">
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="space-y-2">
-                <button onclick="showLaw('1')" id="btn-1" class="law-tab-btn w-full text-left px-5 py-4 rounded-xl font-bold flex items-center gap-3 border border-transparent transition shadow-md bg-emerald-600 text-white">
-                    <span class="text-2xl">⚖️</span>
-                    <div class="truncate">
-                        <p class="text-sm leading-tight">Itegeko Nshinga rya Repubulika y'u Rwanda</p>
-                        <p class="text-xs opacity-75 font-mono mt-0.5 font-medium">Constitution of Rwanda</p>
-                    </div>
-                </button>
-                <button onclick="showLaw('2')" id="btn-2" class="law-tab-btn w-full text-left px-5 py-4 rounded-xl font-bold flex items-center gap-3 border border-transparent transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-200">
-                    <span class="text-2xl">🚨</span>
-                    <div class="truncate">
-                        <p class="text-sm leading-tight">Itegeko ry'Ibyaha n'Ibano (Penal Code)</p>
-                        <p class="text-xs opacity-75 font-mono mt-0.5 font-medium">Penal Code of Rwanda</p>
-                    </div>
-                </button>
-                <button onclick="showLaw('3')" id="btn-3" class="law-tab-btn w-full text-left px-5 py-4 rounded-xl font-bold flex items-center gap-3 border border-transparent transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-200">
-                    <span class="text-2xl">🏠</span>
