@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rwanda Law - GAD MASOZERA</title>
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
+    
+    <header class="bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight">🇷🇼 Rwanda Law Access Hub</h1>
+                <p class="text-emerald-100 text-sm mt-1 font-medium">Developed by <span class="underline font-bold decoration-teal-300 decoration-2">GAD MASOZERA</span></p>
+            </div>
+            <div class="bg-emerald-900/60 border border-emerald-500/30 px-5 py-2 rounded-full text-xs font-bold uppercase text-emerald-200 shadow-inner">Innovative Server V2</div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-emerald-600">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">USSD Code Gateway</p>
+                <p class="text-2xl font-black text-emerald-600 mt-1 font-mono">*384*61254#</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-orange-500">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">AI Legal Counselor</p>
+                <p class="text-xl font-bold text-orange-600 mt-1">Online / Smart</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-blue-500">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Cases Filed</p>
+                <p id="casesCount" class="text-2xl font-black text-slate-700 mt-1">0 Active</p>
+            </div>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Amategeko y'u Rwanda n'Ibihano (Urwego rushya rwa MINIJUST)</h2>
+            <div class="w-full sm:w-72 relative">
+                <input type="text" id="searchInput" onkeyup="filterSystem()" placeholder="Shakisha amategeko hano..." class="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-inner">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-2" id="tabsMenu">
+                <!-- Buttons Menu will be injected by JavaScript -->
+            </div>
+            
+            <div class="md:col-span-2 space-y-6" id="panelsContainer">
+                <div id="lawContentContainer"></div>
+                <div id="noResults" class="hidden text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <p class="text-slate-400 font-bold text-lg">Ntacyo twabonye kuri iryo jambo! / No text found.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const lawsData = {
+            "1": { "id": "1", "title_rw": "Itegeko Nshinga rya Repubulika y'u Rwanda", "title_en": "Constitution of the Republic of Rwanda", "icon": "⚖️", "content_rw": "Ingingo ya 1: Umuryango nyarwanda uteye imbere ku bumwe n'ubwiyunge. Ingingo ya 10: Demokarasi n'uburenganzira bwa muntu ntibwogerwa. Ingingo ya 13: Agaciro k'umuntu kanyuranyije n'iyica rubazo.", "penalty_rw": "IBIHANO: Ikintu cyose, itegeko cyangwa gikorwa kinyuranyije n'Itegeko Nshinga nta gaciro kiba gifite imbere y'amategeko (Null and void).", "content_en": "Article 1: The Rwandan State is a Republic. Article 10: Core values of rule of law and human rights. Article 13: Inviolability of human dignity.", "penalty_en": "SANCTION: Any law, act, or decree contrary to the Constitution is null and void under the law.", "tags": "itegeko nshinga, constitution, uburenganzira" },
+            "2": { "id": "2", "title_rw": "Itegeko ry'Ibyaha n'Ibano (Penal Code)", "title_en": "Penal Code of Rwanda", "icon": "🚨", "content_rw": "Ingingo ya 120 (Ubujura): Gufata ikintu cy'undi utabyemerewe. Ingingo ya 166 (Gukubita/Gukomeretsa): Gukubita cyangwa gukomeretsa ku bushake bitera ubumuga buhoraho.", "penalty_rw": "IBIHANO: Ubujura buhanishwa igifungo kuva ku mezi 6 kugeza ku myaka 2 n'amande kuva kuri 100,000 Frw kugeza kuri 500,000 Frw.", "content_en": "Article 120 (Theft): Fraudulent appropriation of another's property. Article 166 (Assault): Intentional assault causing permanent disability.", "penalty_en": "PENALTY: Petty theft is punishable by 6 months to 2 years prison and a fine of 100k to 500k RWF.", "tags": "ibyaha, penal, ubujura, theft, gukubita" },
+            "3": { "id": "3", "title_rw": "Itegeko ry'Umuryango n'Abantu (Family Law)", "title_en": "Law Governing Persons and Family", "icon": "🏠", "content_rw": "Ingingo ya 35 (Ishyingirwa): Ishyingirwa ryemewe n'amategeko ni irisezeranyijwe imbere y'ubuyobozi bwa Leta. Ingingo ya 88: Abana bose bafite uburenganzira bungana ku izungura.", "penalty_rw": "IBIHANO: Gusezerana mu buryo bwa magendu cyangwa gushaka ubugira kabiri bihanishwa igifungo cy'mezi 6 kugeza ku mwaka 1.", "content_en": "Article 35 (Marriage): Only civil marriage is legally recognized. Article 88: Equal succession and inheritance rights for all children.", "penalty_en": "PENALTY: Illegal marriage or bigamy is strictly prohibited and punishable by 6 months to 1 year imprisonment.", "tags": "umuryango, family, gushyingirwa, marriage, izungura" },
+            "4": { "id": "4", "title_rw": "Itegeko ry'Umurimo mu Rwanda (Labor Law)", "title_en": "Law Governing Labor in Rwanda", "icon": "💼", "content_rw": "Ingingo ya 12: Amasezerano y'akazi agomba kwandikwa. Ingingo ya 28: Integuza y'ukwezi imbere yo kwirukana umukozi.", "penalty_rw": "IBIHANO: Umukoresha wishe iri tegeko ryo kwirukana umukozi nta nteguza, ategekwa kwandukura no kwishyura umushahara w'ukwezi kwose nshumbushanyo.", "content_en": "Article 12: Employment contracts must be in writing. Article 28: Mandatory 1-month termination notice.", "penalty_en": "PENALTY: Violators must pay the worker 1 month full salary as indemnity for lack of notice.", "tags": "akazi, umurimo, contract, fire, kwirukanwa" },
+            "5": { "id": "5", "title_rw": "Amategeko y'Umuhanda n'Ibyapa (Traffic Regulations)", "title_en": "Traffic and Road Safety Regulations", "icon": "🚗", "content_rw": "Ingingo ya 14: Gutwara ikinyabiziga nta permis cyangwa uruhushya rwo gutwara rwemewe. Ingingo ya 22: Kurenza umuvuduko itandukanyijwe n'ibyapa.", "penalty_rw": "IBIHANO: Gutwara nta permis bihanishwa amande ya 50,000 Frw no gufatira ikinyabiziga n'igipolisi. Kurenza umuvuduko bihanishwa amande ya 25,000 Frw.",
+            "content_en": "Article 14: Driving without a valid driver's license. Article 22: Exceeding speed limits specified by road signs.", "penalty_en": "PENALTY: Driving without a license attracts a 50,000 RWF fine and vehicle impoundment.", "tags": "umuhanda, imodoka, permis, license, amande, police" }
+        };
+
+        let activeId = "1";
+
+        function initSystem() {
+            const menu = document.getElementById('tabsMenu');
+            menu.innerHTML = '';
+            for (let key in lawsData) {
+                const law = lawsData[key];
+                const btn = document.createElement('button');
+                btn.id = `btn-${key}`;
+                btn.onclick = () => showLaw(key);
+                btn.className = `w-full text-left px-4 py-3.5 rounded-xl font-bold flex items-center gap-3 transition duration-200 cursor-pointer ${key === activeId ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-700 hover:bg-slate-50'}`;
+                btn.innerHTML = `<span class='text-2xl'>${law.icon}</span><div><p class='text-sm leading-tight'>${law.title_rw}</p><p class='text-xs opacity-75 font-mono font-medium'>${law.title_en}</p></div>`;
+                menu.appendChild(btn);
+            }
+            renderActivePage();
+        }
+
+        function showLaw(id) {
+            document.getElementById(`btn-${activeId}`).className = "w-full text-left px-4 py-3.5 rounded-xl font-bold flex items-center gap-3 transition duration-200 cursor-pointer bg-white text-slate-700 hover:bg-slate-50";
+            activeId = id;
+            document.getElementById(`btn-${activeId}`).className = "w-full text-left px-4 py-3.5 rounded-xl font-bold flex items-center gap-3 transition duration-200 cursor-pointer bg-emerald-600 text-white shadow-md";
+            renderActivePage();
+        }
+
+        function renderActivePage() {
+            const law = lawsData[activeId];
+            const container = document.getElementById('lawContentContainer');
+            container.innerHTML = `
+                <div class='bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/60'>
+                    <div class='flex items-center gap-4 border-b-2 border-slate-100 pb-5 mb-6'>
+                        <span class='text-4xl p-3 bg-slate-50 rounded-2xl shadow-inner'>${law.icon}</span>
+                        <div>
+                            <h2 class='text-xl md:text-2xl font-black text-slate-900 tracking-tight'>${law.title_rw}</h2>
+                            <h3 class='text-xs md:text-sm font-semibold text-slate-400 font-mono tracking-tight mt-0.5'>${law.title_en}</h3>
+                        </div>
+                    </div>
+                    <div class='space-y-6'>
+                        <div class='bg-slate-50 p-5 rounded-xl border border-slate-100'>
