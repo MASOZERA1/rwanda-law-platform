@@ -1,90 +1,44 @@
 import os
-from flask import Flask, request, render_template_string, jsonify
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
-# UBUBIKO BW'AMATEGEKO Y'U RWANDA - AMATEGEKO ATUNganye
 LAW_DATABASE = {
-    "1": {
-        "title_rw": "Itegeko Nshinga rya Repubulika y'u Rwanda",
-        "title_en": "Constitution of the Republic of Rwanda",
-        "icon": "⚖️",
-        "content_rw": "Ingingo ya 1: Umuryango nyarwanda uteye imbere ku bumwe n'ubwiyunge. Ingingo ya 10: Demokarasi n'uburenganzira bwa muntu ntibwogerwa. Ingingo ya 13: Agaciro k'umuntu kanyuranyije n'iyica rubazo.",
-        "penalty_rw": "IBIHANO: Ikintu cyose, itegeko cyangwa gikorwa kinyuranyije n'Itegeko Nshinga nta gaciro kiba gifite imbere y'amategeko (Null and void).",
-        "content_en": "Article 1: The Rwandan State is a Republic. Article 10: Core values of rule of law and human rights. Article 13: Inviolability of human dignity.",
-        "penalty_en": "SANCTION: Any law, act, or decree contrary to the Constitution is null and void under the law.",
-        "tags": "itegeko nshinga, constitution, uburenganzira, nshinga, muntu, agaciro"
-    },
-    "2": {
-        "title_rw": "Itegeko ry'Ibyaha n'Ibano (Penal Code)",
-        "title_en": "Penal Code of Rwanda",
-        "icon": "🚨",
-        "content_rw": "Ingingo ya 120 (Ubujura): Gufata ikintu cy'undi utabyemerewe. Ingingo ya 166 (Gukubita/Gukomeretsa): Gukubita cyangwa gukomeretsa ku bushake bitera ubumuga buhoraho. Ingingo ya 211: Ruswa n'ibyaha bifitanye isano na yo.",
-        "penalty_rw": "IBIHANO: Ubujura buhanishwa igifungo kuva ku mezi 6 kugeza ku myaka 2 n'amande kuva kuri 100,000 Frw kugeza kuri 500,000 Frw. Gukubita bihanishwa igifungo cy'imyaka 5 kugeza kuri 7.",
-        "content_en": "Article 120 (Theft): Fraudulent appropriation of another's property. Article 166 (Assault): Intentional assault causing permanent disability. Article 211: Corruption and related offenses.",
-        "penalty_en": "PENALTY: Petty theft is punishable by 6 months to 2 years prison and a fine of 100k to 500k RWF. Assault is punishable by 5 to 7 years imprisonment.",
-        "tags": "ibyaha, penal, ubujura, theft, gukubita, ruswa, igifungo, amande, gukomeretsa"
-    },
-    "3": {
-        "title_rw": "Itegeko ry'Umuryango n'Abantu (Family Law)",
-        "title_en": "Law Governing Persons and Family",
-        "icon": "🏠",
-        "content_rw": "Ingingo ya 35 (Ishyingirwa): Ishyingirwa ryemewe n'amategeko ni irisezeranyijwe imbere y'ubuyobozi bwa Leta. Ingingo ya 52: Ubutane (Divorce) bushobora kwemezwa n'inkiko gusa. Ingingo ya 88: Abana bose bafite uburenganzira bungana ku izungura.",
-        "penalty_rw": "IBIHANO: Gusezerana mu buryo bwa magendu cyangwa gushaka ubugira kabiri (Bigamy/Polygamy) bihanishwa igifungo cy'mezi 6 kugeza ku mwaka 1 n'amande.",
-        "content_en": "Article 35 (Marriage): Only civil marriage is legally recognized. Article 52: Divorce can only be granted by competent courts. Article 88: Equal succession and inheritance rights for all children.",
-        "penalty_en": "PENALTY: Illegal marriage or bigamy is strictly prohibited and punishable by 6 months to 1 year imprisonment.",
-        "tags": "umuryango, family, gushyingirwa, marriage, izungura, ubutane, divorce, abana"
-    },
-    "4": {
-        "title_rw": "Itegeko ry'Umurimo mu Rwanda (Labor Law)",
-        "title_en": "Law Governing Labor in Rwanda",
-        "icon": "💼",
-        "content_rw": "Ingingo ya 12: Amasezerano y'akazi agomba kwandikwa. Ingingo ya 28: Integuza y'ukwezi imbere yo kwirukana umukozi. Ingingo ya 45: Akazi k'abana munsi y'imyaka 13 karabujijwe burundu.",
-        "penalty_rw": "IBIHANO: Umukoresha wishe iri tegeko ryo kwirukana umukozi nta nteguza, ategekwa kwandukura no kwishyura umushahara w'ukwezi kwose nshumbushanyo (Notice indemnity).",
-        "content_en": "Article 12: Employment contracts must be in writing. Article 28: Mandatory 1-month termination notice. Article 45: Child labor under 13 years is strictly prohibited.",
-        "penalty_en": "PENALTY: Violators must pay the worker 1 month full salary as indemnity for lack of notice.",
-        "tags": "akazi, umurimo, contract, fire, kwirukanwa, umushahara, notice, amasezerano"
-    },
-    "5": {
-        "title_rw": "Amategeko y'Umuhanda n'Ibyapa (Traffic Regulations)",
-        "title_en": "Traffic and Road Safety Regulations",
-        "icon": "🚗",
-        "content_rw": "Ingingo ya 14: Gutwara ikinyabiziga nta permis cyangwa uruhushya rwo gutwara rwemewe. Ingingo ya 22: Kurenza umuvuduko itandukanyijwe n'ibyapa (Speeding) mu mihanda.",
-        "penalty_rw": "IBIHANO: Gutwara nta permis bihanishwa amande ya 50,000 Frw no gufatira ikinyabiziga n'igipolisi. Kurenza umuvuduko (Speeding) bihanishwa amande ya 25,000 Frw.",
-        "content_en": "Article 14: Driving without a valid driver's license. Article 22: Exceeding speed limits specified by road signs.",
-        "penalty_en": "PENALTY: Driving without a license attracts a 50,000 RWF fine and vehicle impoundment. Exceeding speed limits (Speeding) attracts a 25,000 RWF fine.",
-        "tags": "umuhanda, imodoka, permis, license, amande, police, vitesse, ibyapa"
-    }
+    "1": "Itegeko Nshinga: Umuryango nyarwanda uteye imbere. IBIHANO: Ikintu cyose kinyuranyije na ryo nta gaciro kiba gifite.",
+    "2": "Itegeko ry'Ibyaha: Ubujura buhanishwa igifungo kuva ku mezi 6 kugeza ku myaka 2 n'amande.",
+    "3": "Itegeko ry'Umuryango: Ishyingirwa ryemewe ni irisezeranyijwe imbere y'ubuyobozi.",
+    "4": "Itegeko ry'Umurimo: Integuza y'ukwezi imbere yo kwirukana umukozi.",
+    "5": "Amategeko y'Umuhanda: Gutwara nta permis bihanishwa amande ya 50,000 Frw."
 }
 
-LITIGATION_CASES = []
-
-@app.route("/file-case", methods=["POST"])
-def file_case():
-    phone = request.form.get("phone")
-    category = request.form.get("category")
-    details = request.form.get("details")
-    # Gufata izina ry'ifoto niba bay-upload-inze
-    evidence_file = request.files.get("evidence")
-    file_name = evidence_file.filename if evidence_file else "No File Uploaded"
-    
-    if phone and details:
-        LITIGATION_CASES.append({"phone": phone, "category": category, "details": details, "file": file_name})
-        return jsonify({"status": "Success", "cases_count": len(LITIGATION_CASES)})
-    return jsonify({"status": "Error"}), 400
-
+# URUBUGA RWA INTERNET (YAGUYE MURI INDEX.HTML NYAYO)
 @app.route("/", methods=["GET"])
 def dashboard():
-    # 1. SIDEBAR HTML CHUNKS (PYTHON IMMUTABLE STRINGS)
-    menu_html = ""
-    for k, v in LAW_DATABASE.items():
-        bg_cls = "bg-emerald-600 text-white shadow-md" if k == "1" else "bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-200"
-        menu_html += "<button onclick='showLaw(\""+k+"\")' id='btn-" + k + "' class='law-tab-btn w-full text-left px-5 py-4 rounded-xl font-bold flex items-center gap-3 border border-transparent transition shadow-xs " + bg_cls + "'><span class='text-2xl'>" + v["icon"] + "</span><div class='truncate'><p class='text-sm leading-tight'>" + v["title_rw"] + "</p><p class='text-xs opacity-75 font-mono mt-0.5 font-medium'>" + v["title_en"] + "</p></div></button>"
+    return render_template("index.html")
 
-    # 2. CONTENT CARD HTML CHUNKS (PYTHON IMMUTABLE STRINGS)
-    panels_html = ""
-    for k, v in LAW_DATABASE.items():
-        hid_cls = "hidden" if k != "1" else ""
-        panels_html += "<div id='law-panel-" + k + "' class='law-panel bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/60 " + hid_cls + "'><div class='flex items-center gap-4 border-b-2 border-slate-100 pb-5 mb-6'><span class='text-4xl p-3 bg-slate-50 rounded-2xl shadow-inner'>" + v["icon"] + "</span><div><h2 class='text-xl md:text-2xl font-black text-slate-900 tracking-tight'>" + v["title_rw"] + "</h2><h3 class='text-xs md:text-sm font-semibold text-slate-400 font-mono tracking-tight mt-0.5'>" + v["title_en"] + "</h3></div></div><div class='space-y-6'><div class='bg-slate-50 p-5 rounded-xl border border-slate-100'><h4 class='text-emerald-800 font-extrabold text-xs uppercase tracking-wider mb-2'>🇷🇼 Ingingo mu Kinyarwanda</h4><p class='text-slate-700 text-base leading-relaxed font-medium'>" + v["content_rw"] + "</p></div><div class='bg-rose-50 border border-rose-100 p-5 rounded-xl'><h4 class='text-rose-800 font-extrabold text-xs uppercase tracking-wider mb-2'>🚫 Ibihano / Penalties (RW)</h4><p class='text-rose-900 text-base leading-relaxed font-bold'>" + v["penalty_rw"] + "</p></div><div class='bg-slate-50 p-5 rounded-xl border border-slate-100'><h4 class='text-blue-800 font-extrabold text-xs uppercase tracking-wider mb-2'>🇬🇧 Legal Text in English</h4><p class='text-slate-600 text-sm leading-relaxed italic font-medium'>" + v["content_en"] + "</p></div><div class='bg-blue-50/50 border border-blue-100/60 p-5 rounded-xl'><h4 class='text-blue-800 font-extrabold text-xs uppercase tracking-wider mb-2'>⚠️ Sanctions & Penalties (EN)</h4><p class='text-blue-900 text-sm leading-relaxed italic font-bold'>" + v["penalty_en"] + "</p></div></div></div>"
+# --- USSD CORE SERVICE INYURA KURI AFRICA'S TALKING ---
+@app.route("/ussd", methods=["POST"])
+def ussd_handler():
+    text_input = request.form.get("text", "")
+    steps = text_input.split('*') if text_input else []
+    
+    if text_input == "":
+        return "CON Ikaze kuri Rwanda Law App (By GAD MASOZERA)!\nHitamo ururimi / Choose language:\n1. Kinyarwanda\n2. English"
 
-    # 3. FULL UI BUILD (CONCATENATED WITH ZERO TRIPLE QUOTES ERROR RISKS)
+    elif len(steps) == 1:
+        lang = steps
+        if lang in ["1", "2"]:
+            menu = "CON Hitamo Icyiciro:\n1. Itegeko Nshinga\n2. Itegeko ry'Ibyaha\n3. Itegeko ry'Umuryango\n4. Itegeko ry'Umurimo\n5. Amategeko y'Umuhanda"
+            return menu
+        return "END Invalid input."
+
+    elif len(steps) == 2:
+        category = steps
+        if category in LAW_DATABASE:
+            return f"END {LAW_DATABASE[category]}"
+        return "END Category Not Found."
+
+    return "END System error."
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
